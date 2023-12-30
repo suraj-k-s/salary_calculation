@@ -15,15 +15,92 @@ class _SalaryCalculatorState extends State<SalaryCalculator> {
   String? Gender;
   String? Marital;
   String? Department;
+  String FName = '';
+  String? ErrorTextGender = '';
+  String? ErrorTextMarital = '';
   final TextEditingController _fnameController = TextEditingController();
   TextEditingController _lnameController = TextEditingController();
   TextEditingController _basicSalaryController = TextEditingController();
   List<String> departments = ['Accounts', 'Sales', 'Manager', 'Clerk'];
 
-  void submit(){
-    var name = "${_fnameController.text} ${_lnameController.text}";
+  String? validateFName(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter a name';
+    }
+    return null;
+  }
+
+  String? validateLName(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter a name';
+    }
+    return null;
+  }
+
+  String? validatBS(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter a name';
+    }
+    return null;
+  }
+
+  String? validateGRadio(String? value) {
+    if (value == null) {
+      return 'Please select an option';
+    }
+    return null;
+  }
+
+  String? validateMRadio(String? value) {
+    if (value == null) {
+      return 'Please select an option';
+    }
+    return null;
+  }
+
+  String? validateRadio(String? value) {
+    if (value == null) {
+      return 'Please select an option';
+    }
+    return null;
+  }
+
+  String? validateDropdown(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please select a department';
+    }
+    return null;
+  }
+
+  void submit() {
+    if (Gender == null) {
+      setState(() {
+        ErrorTextGender = 'Please select a gender';
+      });
+    }
+    if (Marital == null) {
+      setState(() {
+        ErrorTextMarital = 'Please select a marital status';
+      });
+    }
+    if (_formKey.currentState?.validate() ?? false) {
+      setState(() {
+        FName = "${_fnameController.text} ${_lnameController.text}";
+      });
+    }
     double salary = double.parse(_basicSalaryController.text);
-    Navigator.push(context, MaterialPageRoute(builder: (context) => DisplayResult(Name: name, Gender: Gender, Marital: Marital, Dept: Department, BasicSalary: salary),));
+    if (Gender != null && Marital != null) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DisplayResult(
+                Name: FName,
+                Gender: Gender,
+                Marital: Marital,
+                Dept: Department,
+                BasicSalary: salary),
+          ));
+    }
   }
 
   @override
@@ -45,17 +122,15 @@ class _SalaryCalculatorState extends State<SalaryCalculator> {
             children: [
               TextFormField(
                 decoration: const InputDecoration(
-                    hintText: 'First Name',
-                    border: UnderlineInputBorder(
-                    )),
-                    controller: _fnameController,
+                    hintText: 'First Name', border: UnderlineInputBorder()),
+                controller: _fnameController,
+                validator: validateFName,
               ),
               TextFormField(
                 decoration: const InputDecoration(
-                    hintText: 'Last Name',
-                    border: UnderlineInputBorder(
-                    )),
-                    controller: _lnameController,
+                    hintText: 'Last Name', border: UnderlineInputBorder()),
+                controller: _lnameController,
+                validator: validateLName,
               ),
               Row(
                 children: [
@@ -66,6 +141,7 @@ class _SalaryCalculatorState extends State<SalaryCalculator> {
                       onChanged: (value) {
                         setState(() {
                           Gender = value;
+                          ErrorTextGender = '';
                         });
                       }),
                   const Text('Male'),
@@ -75,6 +151,7 @@ class _SalaryCalculatorState extends State<SalaryCalculator> {
                       onChanged: (value) {
                         setState(() {
                           Gender = value;
+                          ErrorTextGender = '';
                         });
                       }),
                   const Text('Female'),
@@ -84,11 +161,17 @@ class _SalaryCalculatorState extends State<SalaryCalculator> {
                       onChanged: (value) {
                         setState(() {
                           Gender = value;
+                          ErrorTextGender = '';
                         });
                       }),
                   const Text('Others'),
                 ],
               ),
+              if (ErrorTextGender!.isNotEmpty)
+                Text(
+                  ErrorTextGender!,
+                  style: const TextStyle(color: Colors.red),
+                ),
               Row(
                 children: [
                   const Text('Marital Status:'),
@@ -98,21 +181,30 @@ class _SalaryCalculatorState extends State<SalaryCalculator> {
                       onChanged: (value) {
                         setState(() {
                           Marital = value;
+                          ErrorTextMarital = '';
                         });
                       }),
                   const Text('Single'),
                   Radio(
-                      value: 'Married',
-                      groupValue: Marital,
-                      onChanged: (value) {
-                        setState(() {
-                          Marital = value;
-                        });
-                      }),
+                    value: 'Married',
+                    groupValue: Marital,
+                    onChanged: (value) {
+                      setState(() {
+                        Marital = value;
+                        ErrorTextMarital = '';
+                      });
+                    },
+                  ),
                   const Text('Married'),
                 ],
               ),
+              if (ErrorTextMarital!.isNotEmpty)
+                Text(
+                  ErrorTextMarital!,
+                  style: const TextStyle(color: Colors.red),
+                ),
               DropdownButtonFormField(
+                validator: validateDropdown,
                 items: departments.map((String department) {
                   return DropdownMenuItem(
                     value: department,
@@ -128,10 +220,9 @@ class _SalaryCalculatorState extends State<SalaryCalculator> {
               ),
               TextFormField(
                 controller: _basicSalaryController,
+                validator: validatBS,
                 decoration: const InputDecoration(
-                    hintText: 'Basic Salary',
-                    border: UnderlineInputBorder(
-                    )),
+                    hintText: 'Basic Salary', border: UnderlineInputBorder()),
               ),
               const SizedBox(
                 height: 10,
@@ -139,26 +230,32 @@ class _SalaryCalculatorState extends State<SalaryCalculator> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  ElevatedButton(onPressed: (){
-                    submit();
-                  }, child: const Padding(
-                    padding: EdgeInsets.only(left: 15, right: 15),
-                    child: Text('Submit'),
-                  )),
-                  ElevatedButton(onPressed: (){
-                     _formKey.currentState?.reset();
-                      _fnameController.clear();
-                      _lnameController.clear();
-                      _basicSalaryController.clear();
-                      setState(() {
-                        Gender = null;
-                        Marital = null;
-                        Department = null;
-                      });
-                  }, child: const Padding(
-                    padding: EdgeInsets.only(left: 15, right: 15),
-                    child: Text('Reset'),
-                  )),
+                  ElevatedButton(
+                      onPressed: () {
+                        submit();
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.only(left: 15, right: 15),
+                        child: Text('Submit'),
+                      )),
+                  ElevatedButton(
+                      onPressed: () {
+                        _formKey.currentState?.reset();
+                        _fnameController.clear();
+                        _lnameController.clear();
+                        _basicSalaryController.clear();
+                        setState(() {
+                          Gender = null;
+                          Marital = null;
+                          Department = null;
+                          ErrorTextGender = '';
+                          ErrorTextMarital = '';
+                        });
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.only(left: 15, right: 15),
+                        child: Text('Reset'),
+                      )),
                 ],
               )
             ],

@@ -21,6 +21,21 @@ class DisplayResult extends StatefulWidget {
 }
 
 class _DisplayResultState extends State<DisplayResult> {
+
+  @override
+  void initState(){
+    super.initState();
+    calculateSalary();
+  }
+
+  void calculateSalary(){
+    double? bs = widget.BasicSalary;
+    double ta;
+    if(bs!<1000){
+
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
